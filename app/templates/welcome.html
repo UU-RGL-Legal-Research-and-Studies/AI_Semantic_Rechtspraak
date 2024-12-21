@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        margin: 0;
+        overflow: hidden; /* Verberg de scrollbar */
+    }
+
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100vh; /* Vul de volledige hoogte van het scherm */
+        padding: 0 20px;
+        box-sizing: border-box; /* Zorg ervoor dat padding wordt meegerekend in de totale hoogte */
+    }
+
+    .left-content {
+        flex: 1;
+    }
+
+    .right-content {
+        flex: 1;
+        text-align: right;
+    }
+
+    .welcome-title {
+        font-size: 2.5em; /* Vergroot de titeltekst */
+        margin-bottom: 10px;
+    }
+
+    .description {
+        font-size: 1.5em; /* Vergroot de beschrijvingstekst */
+        margin-bottom: 20px;
+    }
+
+    .start-link {
+        font-size: 1.2em; /* Vergroot de start-link tekst */
+        color: #ff8a00; /* Gebruik dezelfde kleur als de rest van de CSS */
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .start-link:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container animate">
+    <div class="left-content">
+        <h1 class="welcome-title">Welcome to <br> JurisAnalyser</h1>
+        <p class="description">Systematic case law analysis 2.0</p>
+    </div>
+    <div class="right-content">
+        <p class="description">
+            Press <a href="{{ url_for('upload') }}" class="start-link">here</a> to start
+        </p>
+    </div>
+</div>
+{% endblock %}

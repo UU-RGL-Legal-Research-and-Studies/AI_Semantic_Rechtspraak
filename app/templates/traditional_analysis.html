@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Traditional Analysis Results{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        height: 100vh; /* Vul de volledige hoogte van het scherm */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .highlight {
+        background-color: yellow;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .btn {
+        background-color: #ff8a00;
+        color: white;
+        padding: 5px 10px;
+        text-decoration: none;
+        border-radius: 3px;
+        margin: 2px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #e52e71;
+    }
+
+    .scroll-container {
+        flex: 1;
+        overflow-y: auto; /* Voeg een verticale scrollbar toe binnen de container */
+        padding: 20px; /* Voeg padding toe voor betere leesbaarheid */
+        box-sizing: border-box; /* Zorg ervoor dat padding wordt meegerekend in de totale hoogte */
+    }
+</style>
+
+<script>
+function saveScrollPosition() {
+    var scrollPosition = window.scrollY;
+    console.log("Saving scroll position: " + scrollPosition);
+    localStorage.setItem("scrollPosition", scrollPosition);
+}
+
+function logClick(action) {
+    console.log(action);
+}
+
+function updateContent(action, ecli) {
+    saveScrollPosition();
+    logClick(action + ' clicked');
+
+    fetch('/' + action + '/' + encodeURIComponent(ecli), {
+        method: 'GET',
+    }).then(response => response.json())
+      .then(data => {
+        document.querySelector(`[data-ecli="${ecli}"] .result-text`).innerHTML = data.text;
+        document.querySelector(`[data-ecli="${ecli}"] .result-index`).innerHTML = data.index;
+        document.querySelector(`[data-ecli="${ecli}"] .result-length`).innerHTML = data.length;
+      }).catch(error => {
+        console.error('Error:', error);
+      });
+}
+
+window.onload = function() {
+    // Alleen scrollpositie herstellen als er geen nieuwe zoekopdracht is ingediend
+    if (localStorage.getItem("scrollPosition") && !localStorage.getItem("newSearch")) {
+        var scrollPosition = parseInt(localStorage.getItem("scrollPosition"));
+        console.log("Restoring scroll position: " + scrollPosition);
+        window.scrollTo(0, scrollPosition);
+        localStorage.removeItem("scrollPosition");
+    }
+
+    // Verwijder de 'newSearch' indicatie
+    localStorage.removeItem("newSearch");
+
+    // Alleen knoppen met data-action attribuut krijgen een event listener
+    document.querySelectorAll('.btn[data-action]').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            var action = this.getAttribute('data-action');
+            var ecli = this.getAttribute('data-ecli');
+            updateContent(action, ecli);
+        });
+    });
+
+    // Knoppen voor nieuwe zoekopdrachten
+    document.querySelectorAll('.new-search-btn').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            // Markeer dat er een nieuwe zoekopdracht is ingediend
+            localStorage.setItem("newSearch", true);
+        });
+    });
+};
+</script>
+
+<div class="container scroll-container">
+    <h1>Traditional Analysis Results</h1>
+    <div>
+        <p>Search Results: {{ search_results_count }}</p>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>ECLI</th>
+                <th>Link</th>
+                <th>Result</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ecli, data in ECLI_texts.items() %}
+                <tr data-ecli="{{ ecli }}">
+                    <td>{{ data.date_link.strftime('%Y-%m-%d') if data.date_link else 'Unknown' }}</td>
+                    <td>{{ ecli }}</td>
+                    <td><a href="{{ data.identifier_link }}" target="_blank">Link</a></td>
+                    <td>
+                        {% if data.texts %}
+                            <p class="result-text">{{ data.texts[data.current_index] | safe }}</p>
+                            <p><span class="result-index">{{ data.current_index + 1 }}</span> of <span class="result-length">{{ data.texts | length }}</span></p>
+                        {% else %}
+                            <p class="result-text">No results found</p>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="#" class="btn" data-action="previous_ecli" data-ecli="{{ ecli }}">Previous</a>
+                        <a href="#" class="btn" data-action="next_ecli" data-ecli="{{ ecli }}">Next</a>
+                        <a href="#" class="btn" data-action="delete_ecli" data-ecli="{{ ecli }}">Delete</a>
+                    </td>                                                                       
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div>
+        <a href="{{ url_for('traditional_search') }}" class="btn new-search-btn">Provide a new query</a>
+        <a href="{{ url_for('semantic_search')}}" class="btn new-search-btn">Provide a semantic query</a>
+        <a href="{{ url_for('download_excel') }}" class="btn">Download Excel</a>
+        <a href="{{ url_for('download_json') }}" class="btn">Download JSON</a>
+    </div>
+</div>
+{% endblock %}

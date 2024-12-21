@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block content %}
+<h1 class="faq-header">Frequently Asked Questions</h1>
+
+<div class="faq-section">
+    <div class="faq-item">
+        <h2 class="faq-question">What is the purpose of JurisAnalyser?</h2>
+        <div class="faq-answer">
+            <p>JurisAnalyser is designed to systematically analyze and search case law (ECLIs) from rechtspraak.nl. JurisAnalyser uses both traditional (keywords) and semantic (AI) queries. It helps users efficiently find relevant case law information.</p>
+        </div>
+    </div>
+    
+    <div class="faq-item">
+        <h2 class="faq-question">How does JurisAnalyser work?</h2>
+        <div class="faq-answer">
+            <p>JurisAnalyser works by uploading legal documents from rechtspraak.nl based on ECLI-numbers. Queries can be performed wit keywords and so-called natural language processing (NLP) and machine learning (AI). As such, the tool can perform both keyword-based searches and semantic searches. Additional benefits are:</p>
+            <ul>
+                <li>Users do not have to open each case law document; the relevant paragraphs are immediately visible.</li>
+                <li>The relevant paragraphs can be stored in an Excel file for systematic analysis.</li>
+                <li>Traditional and semantic search results can be combined to verify and cross-check the findings.</li>
+                <li>A link to the original case law is provided if further validation or context is necessary.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h2 class="faq-question">How do I upload a document?</h2>
+        <div class="faq-answer">
+            <p>To upload a document, go to the 'Upload' page which follows the 'Home' page, select the Excel file containing ECLIs, and click 'Upload'. The document will be processed, and the content will be analyzed based on the queries. Here is a template for an Excel file to upload:</p>
+            <p><a href="{{ url_for('download_template') }}">Download Excel Template</a></p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h2 class="faq-question">How is the data collected?</h2>
+        <div class="faq-answer">
+            <p>The tool uses the API (Application Programming Interface) from rechtspraak.nl to fetch data for each ECLI listed in the uploaded Excel file. This data is then stored in the database for analysis. The API request retrieves XML data, which is parsed and is processed for further use.</p>
+        </div>
+    </div>
+    
+    <div class="faq-item">
+        <h2 class="faq-question">What is the difference between traditional and semantic queries?</h2>
+        <div class="faq-answer">
+            <h3>Traditional query:</h3>
+            <p>Traditional queries look for exact matches of the input search terms within the text. Each paragraph of the legal document is scanned for the presence of the search terms. If the search term is found within the paragraph, that paragraph is highlighted and included in the results.</p>
+            <h3>Semantic query:</h3>
+            <p>Semantic queries use so-called cosine similarity to find the most relevant paragraphs that match the semantic meaning of the query. Results are ranked based on similarity scores, and only those above a certain threshold are included in the results. Users can adjust the similarity metrics for the semantic query. Experimenting with the metric is advised to obtain the best results. A 0.5 metric is a good starting point. Semantic queries 'understand' the meaning of the search terms and find relevant results based on context and synonyms. The entire text is encoded using a pre-trained model, and the encoded query is compared against these encodings. Semantic similarity does not generate new content but rather identifies the similarity between the user's query and the existing case law.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h2 class="faq-question">How can I view the results?</h2>
+        <div class="faq-answer">
+            <p>After the documents are uploaded and a query has been asked, you can view the results on the 'Analysis Results' page. Here, you can browse through the found results and view details. The analysis results can be stored in an Excel file. The entire dataset can be stored in a JSON file for more efficient reusage (i.e. using the dataset again without an API-request to rechtspraak.nl).</p>
+        </div>
+    </div>
+    
+    <div class="faq-item">
+        <h2 class="faq-question">How does JurisAnalyser ensure valid results?</h2>
+        <div class="faq-answer">
+            <p>JurisAnalyser uses both (a) traditional search methods (keywords) and (b) advanced natural language processing (NLP) and machine learning algorithms to ensure high accuracy. Additionally, the tool:</p>
+            <ul>
+                <li>Fetches data directly from rechtspraak.nl, ensuring the information is up-to-date and reliable.</li>
+                <li>Enables users to cross-check traditional and semantic queries, as well as view the original source.</li>
+                <li>All results are distilled directly from paragraphs of the extracted cases. 'Hallucinated text' is therefore not possible.</li>
+                <li>JurisAnalyser is completely open source. All code upon which JurisAnalyser is built, including the search methods, are completely transparent.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h2 class="faq-question">What makes JurisAnalyser different from other legal search engines?</h2>
+        <div class="faq-answer">
+            <p>JurisAnalyser is different as it:</p>
+            <ul>
+                <li>Combines both traditional (keywords) and semantic (AI) queries for comprehensive search results.</li>
+                <li>Creates a faster workflow by making relevant data immediately visible on screen and in Excel.</li>
+                <li>Is completely open source. The query methodologies are transparent which increases the validity of the results.</li>
+                <li>It uses a specific type of AI (semantic similarity) which is reproducable. A similar query in the semantic search and similarity score will produce the same result.</li>
+                <li>Is low-power consuming. Due to efficient code and efficient GPU-usage, JurisAnalyser uses approximately 35-70W/hour. By comparison, when being used, a laptop uses between 50-100W/hour.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <h2 class="faq-question">What should I do if I encounter problems using JurisAnalyser?</h2>
+        <div class="faq-answer">
+            <p>If you encounter any issues, please contact us through the 'Contact' page. We are happy to assist you.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .faq-section {
+        text-align: center;
+        width: 80%;
+        margin: 0 auto;
+    }
+    .faq-section h1 {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .faq-item {
+        margin-bottom: 20px;
+    }
+    .faq-question {
+        margin: 0;
+        padding: 10px;
+        cursor: pointer;
+        background-color: #f1f1f1;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        text-align: left; /* Zorg ervoor dat de vragen links zijn uitgelijnd */
+    }
+    .faq-answer {
+        display: none;
+        padding: 10px;
+        border-left: 3px solid #3498db;
+        margin-top: 10px;
+        background-color: #fafafa;
+        border-radius: 5px;
+        text-align: left; /* Zorg ervoor dat de antwoorden links zijn uitgelijnd */
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questions = document.querySelectorAll('.faq-question');
+        questions.forEach(question => {
+            question.addEventListener('click', function() {
+                const answer = this.nextElementSibling;
+                if (answer.style.display === 'block') {
+                    answer.style.display = 'none';
+                } else {
+                    answer.style.display = 'block';
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

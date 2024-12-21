@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Upload{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+        opacity: 0;
+        transform: translateY(-50%);
+        animation: slideIn 1s forwards;
+    }
+
+    @keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .upload-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .upload-area.dragover {
+        border-color: #ff8a00;
+    }
+
+    .btn {
+        background-color: #ff8a00;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #e52e71;
+    }
+
+    #file-input, #tensor-input {
+        display: none;
+    }
+
+    .template-section {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .template-section a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .template-section a:hover {
+        text-decoration: underline;
+    }
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 220px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position the tooltip above the text */
+        left: 50%;
+        margin-left: -110px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
+
+<div class="container">
+    <h1>Collect Case Law</h1>
+    <div id="upload-area" class="upload-area">
+        <p>Upload an Excel or JSON file here</p>
+    </div>
+    <input type="file" id="file-input" accept=".xlsx, .json">
+
+    <div class="template-section">
+        <p>A JSON file is the fastest way to go</p>
+        <p>Don't have a JSON file yet? <br> Download the <a href="{{ url_for('download_template') }}">example Excel</a> <br> to see what to upload</p>
+    </div>
+
+    <div class="template-section">
+        <p>Already have tensors? <br> Upload them <a href="#" id="upload-tensors-link">here</a> 
+        <span class="tooltip">*<span class="tooltiptext">Uploading tensors in advance speeds up the semantic search process.</span></span></p>
+    </div>
+    <input type="file" id="tensor-input" accept=".pt">
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const tensorInput = document.getElementById('tensor-input');
+        const tensorLink = document.getElementById('upload-tensors-link');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files, 'file');
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            handleFiles(files, 'file');
+        });
+
+        tensorLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            tensorInput.click();
+        });
+
+        tensorInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            handleFiles(files, 'tensor');
+        });
+
+        function handleFiles(files, type) {
+            if (files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', files[0]);
+
+                const filename = files[0].name;
+                const extension = filename.split('.').pop().toLowerCase();
+
+                if ((type === 'file' && (extension === 'xlsx' || extension === 'json')) || 
+                    (type === 'tensor' && extension === 'pt')) {
+                    uploadFile(formData, type);
+                } else {
+                    alert('Please upload a valid ' + (type === 'file' ? 'Excel (.xlsx) or JSON (.json)' : 'tensor (.pt)') + ' file.');
+                }
+            }
+        }
+
+        function uploadFile(formData, type) {
+            fetch('{{ url_for("upload") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "{{ url_for('loading') }}";
+                } else {
+                    alert('File upload failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading file:', error);
+                alert('Error uploading file. Please try again.');
+            });
+        }
+    });
+</script>
+{% endblock %}

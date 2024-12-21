@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Loading{% endblock %}
+
+{% block content %}
+    <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 85vh; /* Volledige hoogte van het zichtbare deel van de pagina */
+            flex-direction: column;
+        }
+
+        .spinner {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('{{ url_for("load_data") }}', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'done') {
+                    window.location.href = "{{ url_for('choose_analysis') }}";
+                } else {
+                    alert('Failed to load data. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading data. Please try again.');
+            });
+        });
+    </script>
+
+    <div class="container">
+        <h1>Loading Data...</h1>
+        <div class="spinner"></div>
+    </div>
+{% endblock %}

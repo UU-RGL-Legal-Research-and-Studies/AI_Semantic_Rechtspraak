@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}Traditional Search{% endblock %}
+
+{% block content %}
+    <style>
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            font-size: 15px; /* Vergroot de tekstgrootte */
+        }
+
+        .tooltip .asterisk {
+            font-size: 30px; /* Vergroot de asterisk */
+            display: inline-block;
+            transform: scale(1.2); /* Vergroot de asterisk zelf */
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Ruimte tussen de knoppen */
+            margin-top: 20px;
+        }
+
+        /* Zorg ervoor dat de knoppen dezelfde stijl hebben als andere knoppen op de website */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #ff8a00;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e52e71;
+        }
+
+        .btn:active {
+            background-color: #e52e71;
+        }
+    </style>
+
+    <div class="container">
+        <h1>Traditional Analysis <br> (Keywords)</h1>
+        <form method="post" action="{{ url_for('traditional_search') }}" class="form-container">
+            <div>
+                <label for="search_terms">Search Terms:</label>
+                <input type="text" id="search_terms" name="search_terms" value="{{ search_terms }}" required>
+                <span class="tooltip">
+                    <span class="asterisk">*</span>
+                    <span class="tooltiptext">
+                        Separate multiple keywords with ','<br>
+                        Use synonyms with '|' (e.g. 'deskundige|expert')
+                    </span>
+                </span>
+            </div>
+            <div class="button-group">
+                <a href="{{ url_for('choose_analysis') }}" class="btn btn-back">Back</a>
+                <button type="submit" class="btn">Search</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
